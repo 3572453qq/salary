@@ -43,12 +43,8 @@ def send_wechat_message(corpID, agentID, corpSecret, toUser, markdown_table):
     print(result)
 
 def processfile(excel_file,yearmonth):    
-    # 读取 Excel 文件，指定两行表头
-    # df = pd.read_excel('D:\\hc\\xsj\\program\\python\\salary\\深圳欣视界- 2023年11月工资单.xlsx',skiprows=1, header=[0, 1])
     df = pd.read_excel(excel_file,skiprows=1, header=None)
-
     # 获取前两行作为表头
-     
     header_rows = df.iloc[:2]
     header_rows = header_rows.fillna(method='ffill', axis=0)
     header_rows = header_rows.fillna(method='ffill', axis=1)
