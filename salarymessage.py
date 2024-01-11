@@ -5,6 +5,7 @@ import re
 import time
 import configparser
 from pypinyin import pinyin, Style
+from datetime import datetime, date
 
 def get_pinyin(word):
     # 将汉字转换为拼音，默认使用带声调的拼音风格
@@ -59,9 +60,9 @@ def processfile(excel_file,yearmonth):
     # 遍历每一行数据
     for rowindex, row in df.iterrows():
         # 遍历每一列数据
-        markdown_table = f"## 您{yearmonth}工资明细如下："
+        markdown_table = f"#### 您{yearmonth}工资明细如下："
         preivous_level1 = 'empty'
-        if rowindex < 2 or row[1]==0 or row[1].strip()=='合计：':
+        if rowindex < 2 or row[1]==0 :
             continue
         is_level2=0
         for colindex,value in enumerate(row):
@@ -75,11 +76,21 @@ def processfile(excel_file,yearmonth):
                 if is_level2==1:
                     col_message = '\n'+col_message
                     is_level2=0
-                col_message = col_message + f'\n> ### {df.iloc[0,colindex]}:'                
+                col_message = col_message + f'\n> #### {df.iloc[0,colindex]}:'                
             if df.iloc[0,colindex]==df.iloc[1,colindex]:
+                if type(value) is date:
+                    # 格式化日期，去掉时间部分
+                    value = value.strftime('%Y-%m-%d')
+                if pd.notnull(value) and type(value) is float:
+                    value = round(value,2)
                 col_message = col_message + f"{value}"
                 # col_message = col_message + f"<font color='warning'>{value}</font>"                
             else:
+                if type(value) is date:
+                    # 格式化日期，去掉时间部分
+                    value = value.strftime('%Y-%m-%d')
+                if pd.notnull(value) and type(value) is float:
+                    value = round(value,2)
                 col_message = col_message + f"\n>> {df.iloc[1,colindex]}:{value}"
                 # col_message = col_message + f"\n>> {df.iloc[1,colindex]}:<font color='warning'>{value}</font>"
                 is_level2=1
@@ -142,7 +153,7 @@ def main():
             else:
                 eachUser = get_pinyin(all_names[message_i])            
             print(message_i,eachUser)
-            send_wechat_message(corpID, agentID, corpSecret, toUser, message)
+            send_wechat_message(corpID, agentID, corpSecret, eachUser, message)
             time.sleep(2.3)
         print(f'{yearmonth}工资条发送完毕，一共{len(all_messages)}条，谢谢！')
     else:
